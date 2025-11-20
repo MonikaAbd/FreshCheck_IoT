@@ -9,6 +9,7 @@ Tento dokument obsahuje návrh datového modelu pro IoT systém chytré domácno
 {
   "_id": "ObjectId",
   "email": "string",
+  "name": "string",
   "passwordHash": "string",
   "createdAt": "Date"
 }
@@ -26,7 +27,7 @@ Tento dokument obsahuje návrh datového modelu pro IoT systém chytré domácno
 }
 ```
 
-### 3. `logs`
+### 3. `alerts`
 ```json
 {
   "_id": "ObjectId",
@@ -36,22 +37,22 @@ Tento dokument obsahuje návrh datového modelu pro IoT systém chytré domácno
 }
 ```
 
-### 4. `automations`
+### 4. `sensorData`
 ```json
 {
   "_id": "ObjectId",
-  "ownerId": "ObjectId",
-  "name": "string",
-  "trigger": {
-    "type": "string", // e.g. "deviceValue", "time"
-    "deviceId": "ObjectId",
-    "condition": "string" // např. value > 25
+  "deviceId": "ObjectId",   // reference na devices
+  "temperature": "number",
+  "humidity": "number",
+  "doorState": "boolean",
+  "acc": {                  // volitelné, pokud zařízení má akcelerometr
+    "x": "number",
+    "y": "number",
+    "z": "number"
   },
-  "action": {
-    "deviceId": "ObjectId",
-    "command": "string" // např. "turnOn", "setTemp:22"
-  }
+  "timestamp": "Date"
 }
+
 ```
 
 ## Vztahy

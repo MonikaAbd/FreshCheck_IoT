@@ -6,7 +6,9 @@ const JWT_SECRET = process.env.JWT_SECRET || 'secret123';
 
 exports.register = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, name } = req.body;
+
+        if (!name) return res.status(400).json({ message: 'Name is required' });
 
         const existing = await User.findOne({ email });
         if (existing) return res.status(400).json({ message: 'User already exists' });
@@ -15,7 +17,8 @@ exports.register = async (req, res) => {
 
         const user = new User({
             email,
-            password: hashed
+            passwordHash: hashed,
+            name
         });
 
         await user.save();
@@ -26,7 +29,6 @@ exports.register = async (req, res) => {
     }
 };
 
-
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -34,7 +36,7 @@ exports.login = async (req, res) => {
         const user = await User.findOne({ email });
         if (!user) return res.status(401).json({ message: 'Invalid credentials' });
 
-        const ok = await bcrypt.compare(password, user.password);
+        const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return res.status(401).json({ message: 'Invalid credentials' });
 
         const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });

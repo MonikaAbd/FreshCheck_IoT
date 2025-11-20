@@ -2,7 +2,7 @@ const Alert = require('../models/Alert');
 
 exports.getAlerts = async (req, res) => {
     try {
-        const alerts = await Alert.find({ userId: req.user.id });
+        const alerts = await Alert.find({ userId: req.user.id }).sort({ timestamp: -1 });
         res.json(alerts);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -20,7 +20,6 @@ exports.createAlert = async (req, res) => {
 
         await alert.save();
         res.json(alert);
-
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -28,16 +27,14 @@ exports.createAlert = async (req, res) => {
 
 exports.deleteAlert = async (req, res) => {
     try {
-        const result = await Alert.findOneAndDelete({
+        const alert = await Alert.findOneAndDelete({
             _id: req.params.id,
             userId: req.user.id
         });
 
-        if (!result)
-            return res.status(404).json({ message: 'Alert not found' });
+        if (!alert) return res.status(404).json({ message: 'Alert not found' });
 
         res.json({ message: 'Alert deleted' });
-
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

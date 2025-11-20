@@ -5,31 +5,72 @@ const authMiddleware = require('../middleware/auth');
 
 router.use(authMiddleware); // všechny endpointy vyžadují přihlášení
 
-// GET /devices
+// GET /devices - seznam zařízení pro přihlášeného uživatele
 router.get('/', async (req, res) => {
-    const devices = await Device.find({ ownerId: req.user.id });
-    res.json(devices);
+    try {
+        const devices = await Device.find({ ownerId: req.user.id });
+        res.json(devices);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// POST /devices
+// POST /devices - vytvoření nového zařízení
 router.post('/', async (req, res) => {
-    const { name, location, thresholds } = req.body;
-    const device = new Device({ ownerId: req.user.id, name, location, thresholds });
-    await device.save();
-    res.json({ status: 'created', _id: device._id });
+    try {
+        const { name, type, location } = req.body;
+
+        if (!name || !type) {
+            return res.status(400).json({ message: 'Name and type are required' });
+        }
+
+        const device = new Device({
+            ownerId: req.user.id,
+            name,
+            type,
+            location
+        });
+
+        await device.save();
+        res.json({ status: 'created', device });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// PUT /devices/:id
+// PUT /devices/:id - aktualizace zařízení
 router.put('/:id', async (req, res) => {
-    const { name, location, thresholds } = req.body;
-    await Device.updateOne({ _id: req.params.id, ownerId: req.user.id }, { name, location, thresholds });
-    res.json({ status: 'updated' });
+    try {
+        const { name, type, location } = req.body;
+
+        const updated = await Device.findOneAndUpdate(
+            { _id: req.params.id, ownerId: req.user.id },
+            { name, type, location },
+            { new: true }
+        );
+
+        if (!updated) return res.status(404).json({ message: 'Device not found' });
+
+        res.json({ status: 'updated', device: updated });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// DELETE /devices/:id
+// DELETE /devices/:id - smazání zařízení
 router.delete('/:id', async (req, res) => {
-    await Device.deleteOne({ _id: req.params.id, ownerId: req.user.id });
-    res.json({ status: 'deleted' });
+    try {
+        const deleted = await Device.findOneAndDelete({
+            _id: req.params.id,
+            ownerId: req.user.id
+        });
+
+        if (!deleted) return res.status(404).json({ message: 'Device not found' });
+
+        res.json({ status: 'deleted', device: deleted });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 module.exports = router;

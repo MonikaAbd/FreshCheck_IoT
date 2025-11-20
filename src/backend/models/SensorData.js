@@ -5,11 +5,15 @@ const sensorDataSchema = new mongoose.Schema({
     temperature: Number,
     humidity: Number,
     doorState: Boolean,
-    acc: { x: Number, y: Number, z: Number },
+    acc: {
+        x: Number,
+        y: Number,
+        z: Number
+    },
     timestamp: { type: Date, default: Date.now }
 });
 
-// doporučeno: index pro time-series
+// Index pro rychlé dotazy na time-series
 sensorDataSchema.index({ deviceId: 1, timestamp: -1 });
 
 module.exports = mongoose.model('SensorData', sensorDataSchema);
