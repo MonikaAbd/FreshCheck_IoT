@@ -58,7 +58,7 @@ Tento dokument obsahuje návrh datového modelu pro IoT systém chytré domácno
 ## Vztahy
 - **user → devices**: 1:N
 - **device → logs**: 1:N
-- **user → automations**: 1:N
+- **user → sensorData**: 1:N
 
 ## Poznámky k implementaci
 - Hesla musí být hashována (bcrypt).
