@@ -6,7 +6,9 @@
   "scripts": {
     "build": "tsc"
   },
-  "dependencies": {},
+  "dependencies": {
+    "mongoose": "^8.20.0"
+  },
   "devDependencies": {
     "typescript": "^5.5.3"
   },
