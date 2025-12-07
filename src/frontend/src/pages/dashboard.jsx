@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
 import { useAuth } from "../context/AuthContext.jsx";
-import { getDevices } from "../services/deviceService.js"; // nebo getDevicesWithApi
+import { getDevices } from "../services/deviceService.js";
+import SensorData from "./sensorData.jsx";
 
 export default function Dashboard() {
   const { user } = useAuth();
   const { token } = useAuth();
   const [devices, setDevices] = useState([]);
   const [error, setError] = useState("");
+  const deviceId = "69282c1c9db673fcd33f357b";
 
   useEffect(() => {
     async function load() {
@@ -38,7 +40,6 @@ export default function Dashboard() {
       <Typography variant="h4" gutterBottom>
         Vítej na dashboardu!
       </Typography>
-
       {user ? (
         <Typography variant="h5">Přihlášený uživatel: {user.name}</Typography>
       ) : (
@@ -50,13 +51,11 @@ export default function Dashboard() {
       <Typography variant="h4" gutterBottom>
         Zařízení:
       </Typography>
-
       {error && (
         <Typography color="error" sx={{ mb: 2 }}>
           {error}
         </Typography>
       )}
-
       <List>
         {devices && devices.length > 0 ? (
           devices.map((d) => (
@@ -71,6 +70,7 @@ export default function Dashboard() {
           <Typography>Žádná zařízení k zobrazení.</Typography>
         )}
       </List>
+      <SensorData deviceId={deviceId} />
     </Box>
   );
 }
