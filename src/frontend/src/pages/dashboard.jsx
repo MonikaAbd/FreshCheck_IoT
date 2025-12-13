@@ -15,7 +15,11 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useAuth } from "../context/AuthContext.jsx";
-import { getDevices, updateDevice } from "../services/deviceService.js";
+import {
+  getDevices,
+  updateDevice,
+  createDevice,
+} from "../services/deviceService.js";
 import SensorData from "./sensorData.jsx";
 import DeviceCharts from "./deviceCharts.jsx";
 import NavBar from "./navBar.jsx";
@@ -131,33 +135,31 @@ export default function Dashboard() {
     setLimitsOpen(false);
   };
 
-  // add device handlers
-  const handleAddConfirm = () => {
-    // UI only — no backend: just log and close
-    console.log("Přidat zařízení:", {
-      name: newName,
-      location: newLocation,
-      type: newType,
-    });
+  const handleAddConfirm = async () => {
+    try {
+      const payload = {
+        name: newName,
+        type: newType,
+        location: newLocation,
+      };
 
-    // optionally add to local list so user sees it immediately (generated id)
-    const fakeId = `local-${Date.now()}`;
-    setDevices((prev) => [
-      ...prev,
-      {
-        _id: fakeId,
-        name: newName || "Nové zařízení",
-        location: newLocation || "-",
-        type: newType || "-",
-      },
-    ]);
-    setSelectedDeviceId(fakeId);
+      const res = await createDevice(payload, token);
 
-    // reset form
-    setNewName("");
-    setNewLocation("");
-    setNewType("");
-    setAddOpen(false);
+      // backend vrací { status, device }
+      setDevices((prev) => [...prev, res.device]);
+      setSelectedDeviceId(res.device._id);
+
+      // reset formuláře
+      setNewName("");
+      setNewLocation("");
+      setNewType("");
+      setAddOpen(false);
+    } catch (err) {
+      console.error("Chyba při vytváření zařízení:", err);
+      setError(
+        err.response?.data?.message || "Nepodařilo se vytvořit nové zařízení."
+      );
+    }
   };
 
   const handleAddCancel = () => {

@@ -41,6 +41,17 @@ export async function updateDevice(deviceId, payload, token) {
   });
   return res.data;
 }
+
+export async function createDevice(payload, token) {
+  const res = await axios.post(`${API_BASE}/devices`, payload, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  return res.data;
+}
 export async function getDevicesWithApi() {
   const resp = await api.get("/devices/");
   return resp.data;
