@@ -247,7 +247,7 @@ export default function Dashboard() {
         )}
       </Box>
 
-      {/* Limits dialog (no backend logic, UI only) */}
+      {/* Limits dialog */}
       <Dialog
         open={limitsOpen}
         onClose={handleLimitsCancel}
