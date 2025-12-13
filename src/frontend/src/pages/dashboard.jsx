@@ -15,7 +15,11 @@ import {
 } from "@mui/material";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { useAuth } from "../context/AuthContext.jsx";
-import { getDevices } from "../services/deviceService.js";
+import {
+  getDevices,
+  updateDevice,
+  createDevice,
+} from "../services/deviceService.js";
 import SensorData from "./sensorData.jsx";
 import DeviceCharts from "./deviceCharts.jsx";
 import NavBar from "./navBar.jsx";
@@ -99,48 +103,63 @@ export default function Dashboard() {
     }
   };
 
-  const handleLimitsConfirm = () => {
-    // no backend yet — just log values and close
-    console.log("Ulož limity:", {
-      limitTemp,
-      limitHumidity,
-      openTime,
-      selectedDeviceId,
-    });
-    setLimitsOpen(false);
+  const handleLimitsConfirm = async () => {
+    if (!selectedDeviceId) return;
+
+    try {
+      const payload = {
+        threshold: {
+          temperature: limitTemp,
+          humidity: limitHumidity,
+          doorOpenMaxSeconds: openTime,
+        },
+      };
+
+      const res = await updateDevice(selectedDeviceId, payload, token);
+
+      // aktualizace lokálního stavu zařízení
+      setDevices((prev) =>
+        prev.map((d) => (d._id === selectedDeviceId ? res.device : d))
+      );
+
+      setLimitsOpen(false);
+    } catch (err) {
+      console.error("Chyba při ukládání limitů:", err);
+      setError(
+        err.response?.data?.message || "Nepodařilo se uložit limity zařízení."
+      );
+    }
   };
 
   const handleLimitsCancel = () => {
     setLimitsOpen(false);
   };
 
-  // add device handlers
-  const handleAddConfirm = () => {
-    // UI only — no backend: just log and close
-    console.log("Přidat zařízení:", {
-      name: newName,
-      location: newLocation,
-      type: newType,
-    });
+  const handleAddConfirm = async () => {
+    try {
+      const payload = {
+        name: newName,
+        type: newType,
+        location: newLocation,
+      };
 
-    // optionally add to local list so user sees it immediately (generated id)
-    const fakeId = `local-${Date.now()}`;
-    setDevices((prev) => [
-      ...prev,
-      {
-        _id: fakeId,
-        name: newName || "Nové zařízení",
-        location: newLocation || "-",
-        type: newType || "-",
-      },
-    ]);
-    setSelectedDeviceId(fakeId);
+      const res = await createDevice(payload, token);
 
-    // reset form
-    setNewName("");
-    setNewLocation("");
-    setNewType("");
-    setAddOpen(false);
+      // backend vrací { status, device }
+      setDevices((prev) => [...prev, res.device]);
+      setSelectedDeviceId(res.device._id);
+
+      // reset formuláře
+      setNewName("");
+      setNewLocation("");
+      setNewType("");
+      setAddOpen(false);
+    } catch (err) {
+      console.error("Chyba při vytváření zařízení:", err);
+      setError(
+        err.response?.data?.message || "Nepodařilo se vytvořit nové zařízení."
+      );
+    }
   };
 
   const handleAddCancel = () => {
@@ -228,7 +247,7 @@ export default function Dashboard() {
         )}
       </Box>
 
-      {/* Limits dialog (no backend logic, UI only) */}
+      {/* Limits dialog */}
       <Dialog
         open={limitsOpen}
         onClose={handleLimitsCancel}
@@ -256,9 +275,9 @@ export default function Dashboard() {
 
             <TextField
               label="Čas otevření"
-              type="time"
+              type="number"
               value={openTime}
-              onChange={(e) => setOpenTime(e.target.value)}
+              onChange={(e) => setOpenTime(Number(e.target.value))}
               InputLabelProps={{ shrink: true }}
               fullWidth
             />
