@@ -46,9 +46,9 @@ export default function Dashboard() {
 
   // dialog state for limits
   const [limitsOpen, setLimitsOpen] = useState(false);
-  const [limitTemp, setLimitTemp] = useState(25);
-  const [limitHumidity, setLimitHumidity] = useState(60);
-  const [openTime, setOpenTime] = useState("08:00");
+  const [limitTemp, setLimitTemp] = useState(null);
+  const [limitHumidity, setLimitHumidity] = useState(null);
+  const [openTime, setOpenTime] = useState(null);
 
   // dialog state for add device
   const [addOpen, setAddOpen] = useState(false);
@@ -113,21 +113,40 @@ export default function Dashboard() {
   const handleLimitsConfirm = async () => {
     if (!selectedDeviceId) return;
 
+    // sestavení threshold jen z vyplněných hodnot
+    const threshold = {};
+
+    if (limitTemp !== null && limitTemp !== "") {
+      threshold.temperature = Number(limitTemp);
+    }
+
+    if (limitHumidity !== null && limitHumidity !== "") {
+      threshold.humidity = Number(limitHumidity);
+    }
+
+    if (openTime !== null && openTime !== "") {
+      threshold.doorOpenMaxSeconds = Number(openTime);
+    }
+
+    // pokud uživatel nevyplnil NIC → nedělej request
+    if (Object.keys(threshold).length === 0) {
+      setError("Vyplň alespoň jednu hodnotu limitu.");
+      return;
+    }
+
     try {
-      const payload = {
-        threshold: {
-          temperature: limitTemp,
-          humidity: limitHumidity,
-          doorOpenMaxSeconds: openTime,
-        },
-      };
+      const payload = { threshold };
 
       const res = await updateDevice(selectedDeviceId, payload, token);
 
-      // aktualizace lokálního stavu zařízení
       setDevices((prev) =>
         prev.map((d) => (d._id === selectedDeviceId ? res.device : d))
       );
+
+      // reset formuláře
+      setLimitTemp(null);
+      setLimitHumidity(null);
+      setOpenTime(null);
 
       setLimitsOpen(false);
     } catch (err) {
