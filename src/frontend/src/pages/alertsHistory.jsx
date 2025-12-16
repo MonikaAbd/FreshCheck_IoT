@@ -212,19 +212,25 @@ export default function AlertsHistory() {
             </TextField>
 
             {/* PER PAGE */}
-            <TextField
-              select
-              size="small"
-              label="Na stránce"
-              value={perPage}
-              onChange={(e) => setPerPage(Number(e.target.value))}
-            >
-              {[5, 10, 20, 50].map((n) => (
-                <MenuItem key={n} value={n}>
-                  {n}
-                </MenuItem>
-              ))}
-            </TextField>
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography variant="body2" whiteSpace="nowrap">
+                Na stránce
+              </Typography>
+
+              <TextField
+                select
+                size="small"
+                value={perPage}
+                onChange={(e) => setPerPage(Number(e.target.value))}
+                sx={{ minWidth: 80 }}
+              >
+                {[1, 5, 10, 20, 50].map((n) => (
+                  <MenuItem key={n} value={n}>
+                    {n}
+                  </MenuItem>
+                ))}
+              </TextField>
+            </Box>
           </Box>
         </Box>
 
