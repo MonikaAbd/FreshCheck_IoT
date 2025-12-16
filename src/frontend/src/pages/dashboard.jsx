@@ -29,6 +29,7 @@ import { getAlerts, resolveAlert } from "../services/alertService.js";
 import SensorData from "./sensorData.jsx";
 import DeviceCharts from "./deviceCharts.jsx";
 import NavBar from "./navBar.jsx";
+import Alerts from "./alerts.jsx";
 
 export default function Dashboard() {
   const { user, token } = useAuth();
@@ -57,22 +58,6 @@ export default function Dashboard() {
 
   // selected device id
   const [selectedDeviceId, setSelectedDeviceId] = useState(null);
-
-  const [alerts, setAlerts] = useState([]);
-  const [alertsError, setAlertsError] = useState("");
-
-  const handleResolveAlert = async (alertId) => {
-    try {
-      setAlerts((prev) => prev.filter((a) => a._id !== alertId));
-
-      await resolveAlert(alertId, token);
-    } catch (err) {
-      console.error("Chyba při řešení alertu:", err);
-      setAlertsError(
-        err.response?.data?.message || "Nepodařilo se vyřešit alert."
-      );
-    }
-  };
 
   useEffect(() => {
     async function load() {
@@ -188,49 +173,6 @@ export default function Dashboard() {
     setAddOpen(false);
   };
   //alert useEffect
-  useEffect(() => {
-    if (!selectedDeviceId) return;
-
-    let cancelled = false;
-
-    async function loadAlerts() {
-      try {
-        setAlertsError("");
-        const data = await getAlerts(selectedDeviceId, { active: true }, token);
-        if (!cancelled) setAlerts(data);
-      } catch (err) {
-        console.error("Chyba při načítání alertů:", err);
-        if (!cancelled) {
-          setAlertsError(
-            err.response?.data?.message || "Nepodařilo se načíst alerty."
-          );
-        }
-      }
-    }
-
-    loadAlerts();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedDeviceId, token]);
-
-  function getAlertMessage(alert) {
-    switch (alert.type) {
-      case "humidity":
-        return `Byla překročena hranice vlhkosti ${alert.value} %`;
-
-      case "temperature":
-        return `Byla překročena hranice teploty ${alert.value} °C`;
-
-      case "door":
-      case "doorOpen":
-        return `Dveře byly otevřené déle než ${alert.value} sekund`;
-
-      default:
-        return `Došlo k překročení nastaveného limitu (${alert.type})`;
-    }
-  }
 
   return (
     <Box
@@ -242,7 +184,6 @@ export default function Dashboard() {
       p={2}
     >
       <NavBar />
-
       <Box mt={3} display="flex" alignItems="center" gap={1}>
         <Typography variant="h6">Zařízení:</Typography>
 
@@ -293,42 +234,13 @@ export default function Dashboard() {
           </MenuItem>
         </Menu>
       </Box>
-      <p></p>
-      {alerts.length > 0 && (
-        <Box width="100%" mb={3}>
-          {alerts.map((alert) => (
-            <Alert
-              key={alert._id}
-              severity="warning"
-              sx={{ mb: 1 }}
-              action={
-                <IconButton
-                  aria-label="vyřešit alert"
-                  color="inherit"
-                  size="small"
-                  onClick={() => handleResolveAlert(alert._id)}
-                >
-                  <CloseIcon fontSize="inherit" />
-                </IconButton>
-              }
-            >
-              <AlertTitle>Výstraha</AlertTitle>
-              {getAlertMessage(alert)}
-              <br />
-              <small>
-                Čas: {new Date(alert.timestamp).toLocaleString("cs-CZ")}
-              </small>
-            </Alert>
-          ))}
-        </Box>
-      )}
-
+      <p />
+      {selectedDeviceId && <Alerts deviceId={selectedDeviceId} />}
       {error && (
         <Typography color="error" sx={{ mb: 2, mt: 2 }}>
           {error}
         </Typography>
       )}
-
       <Box width="100%" mt={4}>
         {selectedDeviceId ? (
           <>
@@ -341,8 +253,19 @@ export default function Dashboard() {
           </Typography>
         )}
       </Box>
-
-      {/* Limits dialog */}
+      <Box width="100%" mt={4}>
+        {selectedDeviceId ? (
+          <>
+            <SensorData deviceId={selectedDeviceId} />
+            <DeviceCharts deviceId={selectedDeviceId} />
+          </>
+        ) : (
+          <Typography sx={{ mt: 2 }}>
+            Zvolte zařízení z nabídky pro zobrazení dat.
+          </Typography>
+        )}
+      </Box>
+      ;{/* Limits dialog */}
       <Dialog
         open={limitsOpen}
         onClose={handleLimitsCancel}
@@ -390,8 +313,7 @@ export default function Dashboard() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Add device dialog (UI only) */}
+      ;{/* Add device dialog (UI only) */}
       <Dialog open={addOpen} onClose={handleAddCancel} maxWidth="xs" fullWidth>
         <DialogTitle>Přidat nové zařízení</DialogTitle>
         <DialogContent>
@@ -423,6 +345,7 @@ export default function Dashboard() {
           </Button>
         </DialogActions>
       </Dialog>
+      ;
     </Box>
   );
 }
