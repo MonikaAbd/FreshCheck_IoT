@@ -36,6 +36,8 @@ export default function AlertsHistory() {
   ====================== */
   const [statusFilter, setStatusFilter] = useState("all"); // all | active | resolved
   const [typeFilter, setTypeFilter] = useState("all"); // all | temperature | humidity | door | doorOpen
+  const [dateFrom, setDateFrom] = useState(""); // YYYY-MM-DD
+  const [dateTo, setDateTo] = useState(""); // YYYY-MM-DD
 
   /* =====================
      PAGINATION
@@ -95,8 +97,7 @@ export default function AlertsHistory() {
   ====================== */
   useEffect(() => {
     setPage(1);
-  }, [statusFilter, typeFilter, perPage, selectedDeviceId]);
-
+  }, [statusFilter, typeFilter, perPage, selectedDeviceId, dateFrom, dateTo]);
   /* =====================
      HELPERS
   ====================== */
@@ -118,12 +119,27 @@ export default function AlertsHistory() {
      FILTERING
   ====================== */
   const filteredAlerts = alerts.filter((alert) => {
-    // status
+    // ===== STATUS =====
     if (statusFilter === "active" && !alert.active) return false;
     if (statusFilter === "resolved" && alert.active) return false;
 
-    // type
+    // ===== TYPE =====
     if (typeFilter !== "all" && alert.type !== typeFilter) return false;
+
+    // ===== DATE FROM =====
+    if (dateFrom) {
+      const from = new Date(dateFrom);
+      const alertDate = new Date(alert.timestamp);
+      if (alertDate < from) return false;
+    }
+
+    // ===== DATE TO =====
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999); // celý den
+      const alertDate = new Date(alert.timestamp);
+      if (alertDate > to) return false;
+    }
 
     return true;
   });
@@ -182,7 +198,22 @@ export default function AlertsHistory() {
                 </MenuItem>
               ))}
             </Menu>
-
+            <TextField
+              label="Od"
+              type="date"
+              size="small"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Do"
+              type="date"
+              size="small"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              InputLabelProps={{ shrink: true }}
+            />
             {/* STATUS FILTER */}
             <TextField
               select
@@ -210,7 +241,18 @@ export default function AlertsHistory() {
               {/*  <MenuItem value="door">Dveře</MenuItem>*/}
               <MenuItem value="doorOpen"> Otevřené dveře</MenuItem>
             </TextField>
-
+            <Button
+              variant="text"
+              size="small"
+              onClick={() => {
+                setStatusFilter("all");
+                setTypeFilter("all");
+                setDateFrom("");
+                setDateTo("");
+              }}
+            >
+              Reset filtrů
+            </Button>
             {/* PER PAGE */}
             <Box display="flex" alignItems="center" gap={1}>
               <Typography variant="body2" whiteSpace="nowrap">
