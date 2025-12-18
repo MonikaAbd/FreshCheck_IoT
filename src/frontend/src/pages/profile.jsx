@@ -78,85 +78,91 @@ export default function Profile() {
   };
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="flex-start"
-      minHeight="100vh"
-      p={2}
-    >
+    <>
       <NavBar />
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="flex-start"
+        minHeight="100vh"
+        p={2}
+      >
+        <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            gap={2}
+          >
+            <Avatar
+              sx={{ width: 80, height: 80 }}
+              alt={user.name}
+              src={user.avatar || ""}
+            />
 
-      <Paper elevation={3} sx={{ p: 4, maxWidth: 400, width: "100%" }}>
-        <Box display="flex" flexDirection="column" alignItems="center" gap={2}>
-          <Avatar
-            sx={{ width: 80, height: 80 }}
-            alt={user.name}
-            src={user.avatar || ""}
-          />
+            {!editing ? (
+              <>
+                <Typography variant="h5">{user.name}</Typography>
 
-          {!editing ? (
-            <>
-              <Typography variant="h5">{user.name}</Typography>
-
-              <Typography variant="body1" color="text.secondary">
-                Email: {user.email}
-              </Typography>
-
-              {user._id && (
-                <Typography variant="body2" color="text.secondary">
-                  ID uživatele: {user._id}
+                <Typography variant="body1" color="text.secondary">
+                  Email: {user.email}
                 </Typography>
-              )}
 
-              <Button variant="outlined" onClick={handleEdit}>
-                Editovat
-              </Button>
-            </>
-          ) : (
-            <>
-              <TextField
-                label="Jméno"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                fullWidth
-              />
+                {user._id && (
+                  <Typography variant="body2" color="text.secondary">
+                    ID uživatele: {user._id}
+                  </Typography>
+                )}
 
-              <TextField
-                label="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-              />
-
-              {error && (
-                <Alert severity="error" sx={{ width: "100%" }}>
-                  {error}
-                </Alert>
-              )}
-
-              <Stack direction="row" spacing={2}>
-                <Button
-                  variant="contained"
-                  onClick={handleSave}
-                  disabled={loading}
-                >
-                  Uložit
+                <Button variant="outlined" onClick={handleEdit}>
+                  Editovat
                 </Button>
-                <Button
-                  variant="outlined"
-                  onClick={handleCancel}
-                  disabled={loading}
-                >
-                  Zrušit
-                </Button>
-              </Stack>
-            </>
-          )}
-        </Box>
-      </Paper>
-    </Box>
+              </>
+            ) : (
+              <>
+                <TextField
+                  label="Jméno"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  fullWidth
+                />
+
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  fullWidth
+                />
+
+                {error && (
+                  <Alert severity="error" sx={{ width: "100%" }}>
+                    {error}
+                  </Alert>
+                )}
+
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    variant="contained"
+                    onClick={handleSave}
+                    disabled={loading}
+                  >
+                    Uložit
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    onClick={handleCancel}
+                    disabled={loading}
+                  >
+                    Zrušit
+                  </Button>
+                </Stack>
+              </>
+            )}
+          </Box>
+        </Paper>
+      </Box>
+    </>
   );
 }
