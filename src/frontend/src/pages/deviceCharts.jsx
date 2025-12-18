@@ -116,7 +116,7 @@ export default function DeviceCharts({ deviceId }) {
   const toggle = () => setExpanded((v) => !v);
 
   return (
-    <Box mt={4}>
+    <Box p={3} mt={4}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
         <Typography variant="h6">Grafy (teplota / vlhkost)</Typography>
         <Button

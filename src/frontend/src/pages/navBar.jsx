@@ -34,7 +34,7 @@ export default function NavBar() {
 
   return (
     <AppBar position="static">
-      <Toolbar>
+      <Toolbar disableGutters sx={{ px: 2 }}>
         <Typography
           variant="h6"
           //component={Link}
@@ -44,7 +44,14 @@ export default function NavBar() {
           FreshCheck IoT
         </Typography>
 
-        <Box sx={{ flexGrow: 1, display: "flex", gap: 1 }}>
+        <Box
+          sx={{
+            flexGrow: 1,
+            display: "flex",
+            gap: 1,
+            overflow: "hidden",
+          }}
+        >
           <Button component={Link} to="/dashboard" color="inherit">
             Dashboard
           </Button>
@@ -53,7 +60,13 @@ export default function NavBar() {
           </Button>
         </Box>
 
-        <Box sx={{ flexGrow: 0 }}>
+        <Box
+          sx={{
+            flexGrow: 0,
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
           <Tooltip title={user ? user.name : "Uživatel"}>
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
               <Avatar alt={user ? user.name : "U"} src={user?.avatar || ""} />

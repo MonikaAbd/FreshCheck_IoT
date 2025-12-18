@@ -189,167 +189,174 @@ export default function Dashboard() {
   };
 
   return (
-    <Box
-      display="flex"
-      flexDirection="column"
-      alignItems="center"
-      justifyContent="flex-start"
-      minHeight="100vh"
-      p={2}
-    >
+    <>
       <NavBar />
-      <Box mt={3} display="flex" alignItems="center" gap={1}>
-        <Typography variant="h6">Zařízení:</Typography>
+      <Box
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="flex-start"
+        minHeight="100vh"
+        p={2}
+      >
+        <Box mt={3} display="flex" alignItems="center" gap={1}>
+          <Typography variant="h6">Zařízení:</Typography>
 
-        <Button
-          variant="outlined"
-          onClick={handleOpenMenu}
-          data-testid="devices-menu-button"
-        >
-          {selectedDeviceId
-            ? devices.find((d) => d._id === selectedDeviceId)?.name ||
-              "Vyber zařízení"
-            : "Vyber zařízení"}
-        </Button>
+          <Button
+            variant="outlined"
+            onClick={handleOpenMenu}
+            data-testid="devices-menu-button"
+          >
+            {selectedDeviceId
+              ? devices.find((d) => d._id === selectedDeviceId)?.name ||
+                "Vyber zařízení"
+              : "Vyber zařízení"}
+          </Button>
 
-        {/* gear icon next to device selector */}
-        <IconButton
-          aria-label="nastavení zařízení"
-          onClick={handleOpenSettings}
-          size="small"
-        >
-          <SettingsIcon />
-        </IconButton>
+          {/* gear icon next to device selector */}
+          <IconButton
+            aria-label="nastavení zařízení"
+            onClick={handleOpenSettings}
+            size="small"
+          >
+            <SettingsIcon />
+          </IconButton>
 
-        <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleCloseMenu}>
-          {devices && devices.length > 0 ? (
-            devices.map((d) => (
-              <MenuItem key={d._id} onClick={() => handleSelectDevice(d._id)}>
-                {d.name} — {d.location}
-              </MenuItem>
-            ))
-          ) : (
-            <MenuItem disabled>Žádná zařízení</MenuItem>
-          )}
-        </Menu>
+          <Menu anchorEl={anchorEl} open={menuOpen} onClose={handleCloseMenu}>
+            {devices && devices.length > 0 ? (
+              devices.map((d) => (
+                <MenuItem key={d._id} onClick={() => handleSelectDevice(d._id)}>
+                  {d.name} — {d.location}
+                </MenuItem>
+              ))
+            ) : (
+              <MenuItem disabled>Žádná zařízení</MenuItem>
+            )}
+          </Menu>
 
-        <Menu
-          anchorEl={anchorSettings}
-          open={settingsOpen}
-          onClose={handleCloseSettings}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={() => handleSettingsSelect("limits")}>
-            Nastavit limity
-          </MenuItem>
-          <MenuItem onClick={() => handleSettingsSelect("add")}>
-            Přidat zařízení
-          </MenuItem>
-        </Menu>
-      </Box>
-      <p />
-      {selectedDeviceId && (
-        <Alerts deviceId={selectedDeviceId} sx={{ mb: 2, mt: 2 }} />
-      )}
-      {error && (
-        <Typography color="error" sx={{ mb: 2, mt: 2 }}>
-          {error}
-        </Typography>
-      )}
-      <Box width="100%" mt={4}>
-        {selectedDeviceId ? (
-          <>
-            <SensorData deviceId={selectedDeviceId} />
-            <DeviceCharts deviceId={selectedDeviceId} />
-          </>
-        ) : (
-          <Typography sx={{ mt: 2 }}>
-            Zvolte zařízení z nabídky pro zobrazení dat.
+          <Menu
+            anchorEl={anchorSettings}
+            open={settingsOpen}
+            onClose={handleCloseSettings}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+          >
+            <MenuItem onClick={() => handleSettingsSelect("limits")}>
+              Nastavit limity
+            </MenuItem>
+            <MenuItem onClick={() => handleSettingsSelect("add")}>
+              Přidat zařízení
+            </MenuItem>
+          </Menu>
+        </Box>
+        <p />
+        {selectedDeviceId && (
+          <Alerts deviceId={selectedDeviceId} sx={{ mb: 2, mt: 2 }} />
+        )}
+        {error && (
+          <Typography color="error" sx={{ mb: 2, mt: 2 }}>
+            {error}
           </Typography>
         )}
-      </Box>
-      ;{/* Limits dialog */}
-      <Dialog
-        open={limitsOpen}
-        onClose={handleLimitsCancel}
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle>Nastavit limity pro zařízení</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField
-              label="Maximální teplota (°C)"
-              type="number"
-              value={limitTemp}
-              onChange={(e) => setLimitTemp(Number(e.target.value))}
-              fullWidth
-            />
-
-            <TextField
-              label="Maximální vlhkost (%)"
-              type="number"
-              value={limitHumidity}
-              onChange={(e) => setLimitHumidity(Number(e.target.value))}
-              fullWidth
-            />
-
-            <TextField
-              label="Čas otevření"
-              type="number"
-              value={openTime}
-              onChange={(e) => setOpenTime(Number(e.target.value))}
-              InputLabelProps={{ shrink: true }}
-              fullWidth
-            />
-
-            <Typography variant="body2" color="text.secondary">
-              Aplikují se limity pro zařízení:{" "}
-              {devices.find((d) => d._id === selectedDeviceId)?.name || "-"}
+        <Box width="100%" mt={4}>
+          {selectedDeviceId ? (
+            <>
+              <SensorData deviceId={selectedDeviceId} />
+              <DeviceCharts deviceId={selectedDeviceId} />
+            </>
+          ) : (
+            <Typography sx={{ mt: 2 }}>
+              Zvolte zařízení z nabídky pro zobrazení dat.
             </Typography>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleLimitsCancel}>Zrušit</Button>
-          <Button variant="contained" onClick={handleLimitsConfirm}>
-            Potvrdit
-          </Button>
-        </DialogActions>
-      </Dialog>
-      ;
-      <Dialog open={addOpen} onClose={handleAddCancel} maxWidth="xs" fullWidth>
-        <DialogTitle>Přidat nové zařízení</DialogTitle>
-        <DialogContent>
-          <Stack spacing={2} sx={{ mt: 1 }}>
-            <TextField
-              label="Název zařízení"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Lokace"
-              value={newLocation}
-              onChange={(e) => setNewLocation(e.target.value)}
-              fullWidth
-            />
-            <TextField
-              label="Typ zařízení"
-              value={newType}
-              onChange={(e) => setNewType(e.target.value)}
-              fullWidth
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleAddCancel}>Zrušit</Button>
-          <Button variant="contained" onClick={handleAddConfirm}>
-            Přidat
-          </Button>
-        </DialogActions>
-      </Dialog>
-      ;
-    </Box>
+          )}
+        </Box>
+        ;{/* Limits dialog */}
+        <Dialog
+          open={limitsOpen}
+          onClose={handleLimitsCancel}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>Nastavit limity pro zařízení</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              <TextField
+                label="Maximální teplota (°C)"
+                type="number"
+                value={limitTemp}
+                onChange={(e) => setLimitTemp(Number(e.target.value))}
+                fullWidth
+              />
+
+              <TextField
+                label="Maximální vlhkost (%)"
+                type="number"
+                value={limitHumidity}
+                onChange={(e) => setLimitHumidity(Number(e.target.value))}
+                fullWidth
+              />
+
+              <TextField
+                label="Čas otevření"
+                type="number"
+                value={openTime}
+                onChange={(e) => setOpenTime(Number(e.target.value))}
+                InputLabelProps={{ shrink: true }}
+                fullWidth
+              />
+
+              <Typography variant="body2" color="text.secondary">
+                Aplikují se limity pro zařízení:{" "}
+                {devices.find((d) => d._id === selectedDeviceId)?.name || "-"}
+              </Typography>
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleLimitsCancel}>Zrušit</Button>
+            <Button variant="contained" onClick={handleLimitsConfirm}>
+              Potvrdit
+            </Button>
+          </DialogActions>
+        </Dialog>
+        ;
+        <Dialog
+          open={addOpen}
+          onClose={handleAddCancel}
+          maxWidth="xs"
+          fullWidth
+        >
+          <DialogTitle>Přidat nové zařízení</DialogTitle>
+          <DialogContent>
+            <Stack spacing={2} sx={{ mt: 1 }}>
+              <TextField
+                label="Název zařízení"
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                fullWidth
+              />
+              <TextField
+                label="Lokace"
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
+                fullWidth
+              />
+              <TextField
+                label="Typ zařízení"
+                value={newType}
+                onChange={(e) => setNewType(e.target.value)}
+                fullWidth
+              />
+            </Stack>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleAddCancel}>Zrušit</Button>
+            <Button variant="contained" onClick={handleAddConfirm}>
+              Přidat
+            </Button>
+          </DialogActions>
+        </Dialog>
+        ;
+      </Box>
+    </>
   );
 }

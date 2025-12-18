@@ -26,7 +26,7 @@ function formatTimestamp(ts) {
   const day = String(d.getDate()).padStart(2, "0");
   const month = String(d.getMonth() + 1).padStart(2, "0");
   const year = d.getFullYear();
-  const hours = String(d.getHours()).padStart(2, "0");
+  const hours = String(d.getHours() + 1).padStart(2, "0"); // +1 to temporary fix timezone issue in CZ
   const minutes = String(d.getMinutes()).padStart(2, "0");
   const seconds = String(d.getSeconds()).padStart(2, "0");
   return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
@@ -170,17 +170,26 @@ export default function SensorData({ deviceId }) {
                   }}
                 >
                   <Stack
-                    direction="row"
-                    alignItems="center"
+                    direction={isMobile ? "column" : "row"}
+                    alignItems={isMobile ? "flex-start" : "center"}
                     justifyContent="space-between"
+                    spacing={isMobile ? 1 : 0}
                   >
                     <Box>
-                      <Typography>
+                      <Typography variant={isMobile ? "body2" : "body1"}>
                         <strong>Čas:</strong> {formatTimestamp(item.timestamp)}
                       </Typography>
                     </Box>
 
-                    <Stack direction="row" spacing={1} alignItems="center">
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      alignItems="center"
+                      sx={{
+                        mt: isMobile ? 1 : 0,
+                        width: isMobile ? "100%" : "auto",
+                      }}
+                    >
                       <Chip
                         icon={<DeviceThermostatIcon />}
                         label={`${
