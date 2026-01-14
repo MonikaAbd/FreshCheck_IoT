@@ -36,7 +36,12 @@ function parseTimestamp(ts) {
 }
 
 function formatTime(d) {
-  return d.toLocaleTimeString("cs-CZ");
+  const day = String(d.getDate()).padStart(2, "0");
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
+
+  return `${day}.${month}\n${hours}:${minutes}`;
 }
 
 export default function DeviceCharts({ deviceId }) {
@@ -114,6 +119,10 @@ export default function DeviceCharts({ deviceId }) {
 
   const toggle = () => setExpanded((v) => !v);
 
+  // dynamické nastavení intervalu popisků na ose X podle hustoty dat
+  const tickInterval =
+    filteredData.length > 30 ? Math.ceil(filteredData.length / 10) : 0;
+
   return (
     <Box p={3} mt={4}>
       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -155,7 +164,12 @@ export default function DeviceCharts({ deviceId }) {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={filteredData}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="time" />
+                <XAxis
+                  dataKey="time"
+                  interval={tickInterval}
+                  tick={{ fontSize: 12 }}
+                  height={50}
+                />
                 <YAxis
                   yAxisId="left"
                   domain={["auto", "auto"]}
