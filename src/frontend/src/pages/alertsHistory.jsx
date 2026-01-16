@@ -108,7 +108,6 @@ export default function AlertsHistory() {
       case "temperature":
         return `Byla překročena hranice teploty ${alert.value} °C`;
       case "door":
-      case "doorOpen":
         return `Dveře byly otevřené déle než ${alert.value} sekund`;
       default:
         return `Došlo k překročení limitu (${alert.type})`;
